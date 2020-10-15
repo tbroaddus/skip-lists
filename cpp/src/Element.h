@@ -51,7 +51,7 @@ Element<T>::~Element(){}
 // TODO: Determine whether this is semantically desired
 template<class T>
 Element<T>& Element<T>::operator=(const Element<T>& _Element) {
-  if (this = &_Element)
+  if (this == &_Element)
     return *this;
   key = _Element.key;
   next = _Element.next;
@@ -63,7 +63,7 @@ Element<T>& Element<T>::operator=(const Element<T>& _Element) {
 
 template<class T>
 Element<T>& Element<T>::operator=(Element<T>&& _Element) {
-  if (this = &_Element)
+  if (this == &_Element)
     return *this;
   key = _Element.key;
   next = std::move(_Element.next);

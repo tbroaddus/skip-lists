@@ -35,7 +35,7 @@ class Skip_List {
 
     void add_element(const T&);
 
-    bool contains(const T&);
+    std::shared_ptr<Element<T>> search(const T&) const;
 
     int list_size() const;
 
@@ -46,10 +46,16 @@ class Skip_List {
   private:
 
     // Helper private member function that takes in 
-    // a shared_ptr reference to another element 
+    // a shared_ptr reference to another element.
+    // Recursively iterates throught he list until 
+    // a spot is found to insert. 
     void add_element_helper(std::shared_ptr<Element<T>>, const T&);
 
-    void add_layer(std::shared_ptr<Element<T>>&, const T&, const int);
+    void add_layer(std::shared_ptr<Element<T>>, const T&, const int);
+
+    std::shared_ptr<Element<T>> search_level(std::shared_ptr<Element<T>>, const T&, const int) const;
+
+    std::shared_ptr<Element<T>> find_base_element(std::shared_ptr<Element<T>>) const;
 
     void add_element_layer(std::shared_ptr<Element<T>>, std::shared_ptr<Element<T>>, const int layer);
 
@@ -134,9 +140,6 @@ void Skip_List<T,N>::add_element_helper(std::shared_ptr<Element<T>> element_ptr,
     new_element->next = element_ptr;
     element_ptr->prev->next = new_element;
     element_ptr->prev = new_element;
-    if (new_element->next->next != nullptr){ 
-    std::cout << "At the end, " << new_element->key << " is pointing to " << new_element->next->key << " and " << new_element->next->key << " is pointing to " << new_element->next->next->key;
-    }
     add_layer(new_element, key, 1);
   } else if (element_ptr->next == nullptr) {
     std::shared_ptr<Element<T>> new_element = std::make_shared<Element<T>>(key);
@@ -152,7 +155,7 @@ void Skip_List<T,N>::add_element_helper(std::shared_ptr<Element<T>> element_ptr,
 }
 
 template<class T, int N>
-void Skip_List<T,N>::add_layer(std::shared_ptr<Element<T>>& element_ptr, const T& key, const int layer) {
+void Skip_List<T,N>::add_layer(std::shared_ptr<Element<T>> element_ptr, const T& key, const int layer) {
   // Reached the max height
   if (layer == N) 
     return;
@@ -190,9 +193,36 @@ void Skip_List<T,N>::add_element_layer(std::shared_ptr<Element<T>> element_ptr, 
 }
 
 template<class T, int N>
-bool Skip_List<T,N>::contains(const T& key) {
-  // TODO: Temp, replace with emp
-  return false;
+std::shared_ptr<Element<T>> Skip_List<T,N>::search(const T& key) const {
+  return search_level(head_arr.at(layers-1), key, layers-1);
+}
+
+template<class T, int N>
+std::shared_ptr<Element<T>> Skip_List<T,N>::search_level(std::shared_ptr<Element<T>> head, const T& key, const int level) const {
+  if (head == nullptr)
+    return nullptr;
+  std::shared_ptr<Element<T>> curr_element = head;
+  while(curr_element != nullptr) {
+    if (key == curr_element->key) 
+      return find_base_element(curr_element);
+    else if (key <= curr_element->key) 
+      return search_level(curr_element->prev->below, key, level-1);
+    else
+      if (curr_element->next == nullptr)
+        return search_level(curr_element->below, key, level-1); 
+      curr_element = curr_element->next;
+  }
+  return nullptr;
+}
+
+template<class T, int N>
+std::shared_ptr<Element<T>> Skip_List<T,N>::find_base_element(std::shared_ptr<Element<T>> curr_element) const {
+  if (curr_element == nullptr)
+    return nullptr;
+  if (curr_element->below == nullptr)
+    return curr_element;
+  else 
+    return find_base_element(curr_element->below);
 }
 
 // TODO: increment size after additions
@@ -206,7 +236,6 @@ int Skip_List<T,N>::layer_count() const {
   return layers;
 }
 
-// TODO: For now, printing the first layer! Need to print all layers moving forward. 
 template<class T, int N>
 void Skip_List<T,N>::print_layers() const {
   for (int i = N-1; i >= 0; i--) {
