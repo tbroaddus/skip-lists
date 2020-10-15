@@ -54,7 +54,7 @@ class Skip_List {
 
     // Helper private member function that takes in 
     // a shared_ptr reference to another element.
-    // Recursively iterates throught he list until 
+    // Recursively iterates through the list until 
     // a spot is found to insert. 
     void add_element_helper(std::shared_ptr<Element<T>>, const T&);
 
