@@ -1,11 +1,13 @@
 #include <iostream>
+#include <memory>
 #include <functional>
+
 
 #include "Skip_List.h"
 
 int main(int argc, char** argv) {
 
-  Skip_List<int,8> skip_list;
+  Skip_List<int,4> skip_list;
   skip_list.add_element(2);
   skip_list.add_element(3);
   skip_list.add_element(8);
@@ -20,8 +22,9 @@ int main(int argc, char** argv) {
   skip_list.add_element(6);
 
   std::cout << "\nSkip list layers: \n";
-  skip_list.print_layers();
+  skip_list.print_levels();
 
+  // base_element()
   // Function to print message to check if the element returned 
   // by search() is the base element.
   std::function<void(std::shared_ptr<Element<int>>)> base_element {
@@ -33,6 +36,7 @@ int main(int argc, char** argv) {
     }
   };
 
+  // contains()
   // Function to print message if element has been found or not
   std::function<void(std::shared_ptr<Element<int>>)> contains {
     [&base_element](std::shared_ptr<Element<int>> element) {
@@ -46,16 +50,23 @@ int main(int argc, char** argv) {
     }
   };
 
+  // Searching for 2, 11, 9, 340, 0, 15, 1000 within the skip list.
+  // 0, 15, and 1000 are not within the skip list.
+  std::cout << "\nSearching for 2" << std::endl;
+  contains(skip_list.search(2));
   std::cout << "\nSearching for 11" << std::endl;
   contains(skip_list.search(11));
   std::cout << "\nSearching for 9" << std::endl;
   contains(skip_list.search(9));
-  std::cout << "\nSearching for 1000 (beyond end of list)" << std::endl;
-  contains(skip_list.search(1000));
   std::cout << "\nSearching for 340 (end of list)" << std::endl;
   contains(skip_list.search(340));
+  std::cout << "\nSearching for 0 (smaller than anything within the list)" << std::endl;
+  contains(skip_list.search(0));
+  std::cout << "\nSearching for 15 (would be within the list)" << std::endl;
+  contains(skip_list.search(15));
+  std::cout << "\nSearching for 1000 (beyond end of list)" << std::endl;
+  contains(skip_list.search(1000));
+  std::cout << std::endl;
 
-
-
-  
+  return 0; 
 }
